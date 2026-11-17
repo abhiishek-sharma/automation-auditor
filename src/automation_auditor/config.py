@@ -82,6 +82,7 @@ def builtin_variables(spec_path: Path, run_date: str | None = None) -> dict[str,
         "RUN_DATE": run_date or _dt.date.today().isoformat(),
         "PYTHON": sys.executable,
         "HOME": str(Path.home()),
+        "WORKSPACE": os.getcwd(),
     }
 
 
