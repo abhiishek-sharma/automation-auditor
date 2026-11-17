@@ -1,0 +1,48 @@
+{
+  "name": "02_wrong_file",
+  "description": "Exits 0 but writes report-2026-20-11.json (day/month swapped).",
+  "schedule": "daily 02:00",
+  "command": [
+    "${PYTHON}",
+    "${JOB_DIR}/../scripts/export_report.py",
+    "--fault",
+    "date_format"
+  ],
+  "cwd": "${WORKSPACE}/02_wrong_file",
+  "timeout_seconds": 30,
+  "expected_outcome": "out/report-<RUN_DATE>.json is written during the run with total > 0 and date = RUN_DATE.",
+  "checks": [
+    {
+      "type": "file",
+      "name": "today's report written",
+      "path": "out/report-${RUN_DATE}.json",
+      "fresh": true,
+      "json_field": "total",
+      "op": "gt",
+      "value": 0
+    },
+    {
+      "type": "file",
+      "name": "report is for the run date",
+      "path": "out/report-${RUN_DATE}.json",
+      "json_field": "date",
+      "op": "equals",
+      "value": "${RUN_DATE}"
+    }
+  ],
+  "demo": {
+    "expected_verdict": "SILENT_FAILURE",
+    "cause_keywords": [
+      "filename",
+      "path",
+      "date format"
+    ],
+    "fixtures": [
+      {
+        "path": "02_wrong_file/out/report-2026-11-19.json",
+        "content": "{\"date\": \"2026-11-19\", \"total\": 230.1}",
+        "age_hours": 24
+      }
+    ]
+  }
+}

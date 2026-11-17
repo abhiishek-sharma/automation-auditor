@@ -1,0 +1,32 @@
+{
+  "name": "03_http_missing_data",
+  "description": "API returns HTTP 200 with an empty items list; job exits 0.",
+  "schedule": "hourly",
+  "command": [
+    "${PYTHON}",
+    "${JOB_DIR}/../scripts/sync_orders.py",
+    "--url",
+    "${DEMO_API_URL}/api/orders?date=${RUN_DATE}&scenario=partial"
+  ],
+  "cwd": "${WORKSPACE}/03_http_missing_data",
+  "timeout_seconds": 30,
+  "expected_outcome": "Today's orders are available from the orders API (items is non-empty).",
+  "checks": [
+    {
+      "type": "http",
+      "name": "orders API has today's items",
+      "url": "${DEMO_API_URL}/api/orders?date=${RUN_DATE}&scenario=partial",
+      "expect_status": 200,
+      "json_field": "items",
+      "op": "non_empty"
+    }
+  ],
+  "demo": {
+    "expected_verdict": "SILENT_FAILURE",
+    "cause_keywords": [
+      "empty",
+      "inventory-service",
+      "status code alone"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "06_swallowed_error",
+  "description": "A section crashes, the traceback is logged, the job still exits 0.",
+  "schedule": "daily 02:00",
+  "command": [
+    "${PYTHON}",
+    "${JOB_DIR}/../scripts/export_report.py",
+    "--fault",
+    "swallowed_error"
+  ],
+  "cwd": "${WORKSPACE}/06_swallowed_error",
+  "timeout_seconds": 30,
+  "expected_outcome": "Report written and the run logs no errors.",
+  "checks": [
+    {
+      "type": "file",
+      "name": "today's report written",
+      "path": "out/report-${RUN_DATE}.json",
+      "fresh": true,
+      "json_field": "total",
+      "op": "gt",
+      "value": 0
+    },
+    {
+      "type": "output",
+      "name": "no traceback in stderr",
+      "stream": "stderr",
+      "not_contains": "Traceback"
+    },
+    {
+      "type": "file",
+      "name": "region breakdown present",
+      "path": "out/report-${RUN_DATE}.json",
+      "json_field": "regions",
+      "op": "non_empty"
+    }
+  ],
+  "demo": {
+    "expected_verdict": "SILENT_FAILURE",
+    "cause_keywords": [
+      "swallow",
+      "keyerror",
+      "region_code"
+    ]
+  }
+}

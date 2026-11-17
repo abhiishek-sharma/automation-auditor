@@ -1,0 +1,45 @@
+{
+  "name": "04_duplicate_on_retry",
+  "description": "Insert commits, ack times out, retry inserts the batch again; exits 0.",
+  "schedule": "daily 02:00",
+  "command": [
+    "${PYTHON}",
+    "${JOB_DIR}/../scripts/load_orders.py",
+    "--fault",
+    "ack_timeout_retry"
+  ],
+  "cwd": "${WORKSPACE}/04_duplicate_on_retry",
+  "timeout_seconds": 30,
+  "expected_outcome": "Each of the 10 orders appears exactly once in orders.db.",
+  "checks": [
+    {
+      "type": "sqlite",
+      "name": "no duplicate orders",
+      "db": "data/orders.db",
+      "query": "SELECT order_id, COUNT(*) AS n FROM orders GROUP BY order_id HAVING n > 1",
+      "expect_rows": {
+        "op": "equals",
+        "value": 0
+      },
+      "evidence_query": "SELECT id, order_id, amount, loaded_at FROM orders WHERE order_id IN (SELECT order_id FROM orders GROUP BY order_id HAVING COUNT(*) > 1) ORDER BY order_id, id"
+    },
+    {
+      "type": "sqlite",
+      "name": "whole batch of 10 loaded",
+      "db": "data/orders.db",
+      "query": "SELECT COUNT(DISTINCT order_id) FROM orders",
+      "expect_scalar": {
+        "op": "equals",
+        "value": 10
+      }
+    }
+  ],
+  "demo": {
+    "expected_verdict": "SILENT_FAILURE",
+    "cause_keywords": [
+      "idempot",
+      "duplicate",
+      "retry"
+    ]
+  }
+}

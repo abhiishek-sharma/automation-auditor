@@ -1,0 +1,35 @@
+{
+  "name": "07_partial_batch",
+  "description": "Rows failing validation are silently dropped (7 of 10 loaded); exits 0.",
+  "schedule": "daily 02:00",
+  "command": [
+    "${PYTHON}",
+    "${JOB_DIR}/../scripts/load_orders.py",
+    "--fault",
+    "partial_batch",
+    "--idempotent"
+  ],
+  "cwd": "${WORKSPACE}/07_partial_batch",
+  "timeout_seconds": 30,
+  "expected_outcome": "All 10 orders of the batch are in orders.db.",
+  "checks": [
+    {
+      "type": "sqlite",
+      "name": "whole batch of 10 loaded",
+      "db": "data/orders.db",
+      "query": "SELECT COUNT(DISTINCT order_id) FROM orders",
+      "expect_scalar": {
+        "op": "equals",
+        "value": 10
+      }
+    }
+  ],
+  "demo": {
+    "expected_verdict": "SILENT_FAILURE",
+    "cause_keywords": [
+      "partial",
+      "dropped",
+      "7 of 10"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "05_stale_output",
+  "description": "Exits 0 on an early 'no new data' branch; yesterday's file is still there.",
+  "schedule": "daily 02:00",
+  "command": [
+    "${PYTHON}",
+    "${JOB_DIR}/../scripts/export_report.py",
+    "--fault",
+    "early_exit"
+  ],
+  "cwd": "${WORKSPACE}/05_stale_output",
+  "timeout_seconds": 30,
+  "expected_outcome": "out/report-<RUN_DATE>.json is rewritten by this run.",
+  "checks": [
+    {
+      "type": "file",
+      "name": "today's report written",
+      "path": "out/report-${RUN_DATE}.json",
+      "fresh": true
+    }
+  ],
+  "demo": {
+    "expected_verdict": "SILENT_FAILURE",
+    "cause_keywords": [
+      "stale",
+      "not rewritten",
+      "early"
+    ],
+    "fixtures": [
+      {
+        "path": "05_stale_output/out/report-2026-11-20.json",
+        "content": "{\"date\": \"2026-11-20\", \"total\": 1}",
+        "age_hours": 20
+      }
+    ]
+  }
+}

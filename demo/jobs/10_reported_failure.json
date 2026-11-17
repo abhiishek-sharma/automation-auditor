@@ -1,0 +1,34 @@
+{
+  "name": "10_reported_failure",
+  "description": "A genuine, visible failure: the job exits 1. Not a silent failure.",
+  "schedule": "daily 02:00",
+  "command": [
+    "${PYTHON}",
+    "${JOB_DIR}/../scripts/load_orders.py",
+    "--fault",
+    "crash"
+  ],
+  "cwd": "${WORKSPACE}/10_reported_failure",
+  "timeout_seconds": 30,
+  "expected_outcome": "All 10 orders of the batch are in orders.db.",
+  "checks": [
+    {
+      "type": "sqlite",
+      "name": "whole batch of 10 loaded",
+      "db": "data/orders.db",
+      "query": "SELECT COUNT(DISTINCT order_id) FROM orders",
+      "expect_scalar": {
+        "op": "equals",
+        "value": 10
+      }
+    }
+  ],
+  "demo": {
+    "expected_verdict": "REPORTED_FAILURE",
+    "cause_keywords": [
+      "cannot open",
+      "fatal",
+      "missing-dir"
+    ]
+  }
+}
