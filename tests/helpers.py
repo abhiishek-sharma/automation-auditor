@@ -6,8 +6,8 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from automation_doctor.checks import CheckContext
-from automation_doctor.runner import RunRecord
+from automation_auditor.checks import CheckContext
+from automation_auditor.runner import RunRecord
 
 
 def make_run(exit_code=0, started_at=None, stdout="", stderr="", timed_out=False, launch_error=""):

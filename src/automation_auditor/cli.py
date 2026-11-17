@@ -34,14 +34,14 @@ def _common(p: argparse.ArgumentParser) -> None:
     p.add_argument("--provider", choices=["auto", "ollama", "rules", "none"],
                    help="diagnosis provider (default: job spec, AD_PROVIDER, or auto)")
     p.add_argument("--model", help="Ollama model (default: job spec, AD_OLLAMA_MODEL, or qwen2.5-coder:7b)")
-    p.add_argument("--out", default=".automation-doctor/reports", help="where reports are written")
+    p.add_argument("--out", default=".automation-auditor/reports", help="where reports are written")
     p.add_argument("--no-save", action="store_true", help="do not write report files")
     p.add_argument("--format", choices=["text", "json", "md"], default="text", help="stdout format")
 
 
 def build_parser() -> argparse.ArgumentParser:
-    ap = argparse.ArgumentParser(prog="automation-doctor", description=__doc__)
-    ap.add_argument("--version", action="version", version=f"automation-doctor {__version__}")
+    ap = argparse.ArgumentParser(prog="automation-auditor", description=__doc__)
+    ap.add_argument("--version", action="version", version=f"automation-auditor {__version__}")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("run", help="run the job's command, then check its outcome")
@@ -138,7 +138,7 @@ def main(argv: list[str] | None = None) -> int:
                 finished_at=parse_time(args.finished_at or rec.get("finished_at")))
         return _emit(evaluate(job, run, diag), args)
     except (ConfigError, OSError, json.JSONDecodeError, ValueError) as exc:
-        print(f"automation-doctor: error: {exc}", file=sys.stderr)
+        print(f"automation-auditor: error: {exc}", file=sys.stderr)
         return CONFIG_ERROR_EXIT
 
 

@@ -1,7 +1,7 @@
 import unittest
 
-from automation_doctor.checks import ERROR, FAIL, PASS, CheckResult
-from automation_doctor.classify import OK, REPORTED_FAILURE, SILENT_FAILURE, UNVERIFIED, classify
+from automation_auditor.checks import ERROR, FAIL, PASS, CheckResult
+from automation_auditor.classify import OK, REPORTED_FAILURE, SILENT_FAILURE, UNVERIFIED, classify
 
 from helpers import make_run
 

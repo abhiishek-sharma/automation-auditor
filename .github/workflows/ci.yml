@@ -23,7 +23,7 @@ jobs:
           AD_PROVIDER: rules
         run: python -m pytest -q
       - name: Demo scenarios
-        run: python -m automation_doctor demo --provider rules --out demo-output
+        run: python -m automation_auditor demo --provider rules --out demo-output
       - uses: actions/upload-artifact@v4
         if: always()
         with:

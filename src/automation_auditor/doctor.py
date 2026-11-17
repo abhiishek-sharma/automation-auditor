@@ -25,7 +25,7 @@ class Result:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "tool": f"automation-doctor {__version__}",
+            "tool": f"automation-auditor {__version__}",
             "job": {"name": self.job.name, "schedule": self.job.schedule, "description": self.job.description,
                     "expected_outcome": self.job.expected_outcome, "command": self.job.command_display,
                     "spec": self.job.source_path},

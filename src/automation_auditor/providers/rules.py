@@ -36,7 +36,7 @@ class RulesProvider:
                     or _first_line_matching(logs, _ERRORISH_RE) or "no error line found in the log tail")
             return self._d(f"The job reported failure ({bundle.get('verdict_reason')}).",
                            f"See the job's own error output: {line}",
-                           "Fix the error the job reported, then re-run it under automation-doctor.",
+                           "Fix the error the job reported, then re-run it under automation-auditor.",
                            "Read the stderr tail in this report.", "medium",
                            "The job's own exit status is the primary evidence; outcome checks are secondary.")
 
@@ -133,7 +133,7 @@ class RulesProvider:
                                "The check's configuration or a dependency (endpoint, DB) is broken, not "
                                "necessarily the job.",
                                "Fix the check configuration or make the dependency reachable.",
-                               "Run `automation-doctor validate` on the job spec.", "high",
+                               "Run `automation-auditor validate` on the job spec.", "high",
                                "The outcome is unknown.")
         if checks:
             c = checks[0]

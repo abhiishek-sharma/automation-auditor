@@ -3,8 +3,8 @@ import os
 import sqlite3
 import time
 
-from automation_doctor.checks import ERROR, FAIL, PASS, run_checks
-from automation_doctor.config import ConfigError, job_from_dict
+from automation_auditor.checks import ERROR, FAIL, PASS, run_checks
+from automation_auditor.config import ConfigError, job_from_dict
 
 from helpers import JsonServer, TempDirCase
 

@@ -13,7 +13,7 @@ Each report includes the evidence and a suggested fix.
 ## Quick start (macOS, Python 3.12 via uv)
 
 ```bash
-git clone <repo-url> automation-doctor && cd automation-doctor
+git clone <repo-url> automation-auditor && cd automation-auditor
 make setup        # uv venv --python 3.12 .venv && uv pip install -e '.[dev]'
 make test         # 43 tests; no model needed
 make demo         # runs the 10 demo scenarios, writes demo-output/index.html
@@ -21,7 +21,7 @@ open demo-output/index.html
 ```
 
 Without `make` or `uv`: `python3 -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/python -m
-automation_doctor demo`.
+automation_auditor demo`.
 
 Optional LLM explanation (needs [Ollama](https://ollama.com) installed locally):
 
@@ -80,14 +80,14 @@ When a file is missing, the evidence lists the files written in the same directo
 
 | Module | Role |
 |---|---|
-| [config.py](src/automation_doctor/config.py) | Load and validate job specs; `${VAR}` substitution (`RUN_DATE`, `JOB_DIR`, `PYTHON`, env, `--var`) |
-| [runner.py](src/automation_doctor/runner.py) | Run the command with a timeout, or build a record of a finished run (`inspect`) |
-| [checks.py](src/automation_doctor/checks.py) | The four check types; read-only (SQLite opened `mode=ro` + `query_only`, HTTP GET only) |
-| [classify.py](src/automation_doctor/classify.py) | Pure function: run record + check results → verdict |
-| [evidence.py](src/automation_doctor/evidence.py), [sanitize.py](src/automation_doctor/sanitize.py) | Minimal, bounded, redacted bundle for the diagnosis provider |
-| [providers/](src/automation_doctor/providers/) | `DiagnosisProvider` interface; `RulesProvider`; `OllamaProvider`; output validation |
-| [report.py](src/automation_doctor/report.py) | Terminal, Markdown and HTML (everything escaped) |
-| [demo.py](src/automation_doctor/demo.py) | Runs `demo/jobs/*.json` against a local fake API and measures the results |
+| [config.py](src/automation_auditor/config.py) | Load and validate job specs; `${VAR}` substitution (`RUN_DATE`, `JOB_DIR`, `PYTHON`, env, `--var`) |
+| [runner.py](src/automation_auditor/runner.py) | Run the command with a timeout, or build a record of a finished run (`inspect`) |
+| [checks.py](src/automation_auditor/checks.py) | The four check types; read-only (SQLite opened `mode=ro` + `query_only`, HTTP GET only) |
+| [classify.py](src/automation_auditor/classify.py) | Pure function: run record + check results → verdict |
+| [evidence.py](src/automation_auditor/evidence.py), [sanitize.py](src/automation_auditor/sanitize.py) | Minimal, bounded, redacted bundle for the diagnosis provider |
+| [providers/](src/automation_auditor/providers/) | `DiagnosisProvider` interface; `RulesProvider`; `OllamaProvider`; output validation |
+| [report.py](src/automation_auditor/report.py) | Terminal, Markdown and HTML (everything escaped) |
+| [demo.py](src/automation_auditor/demo.py) | Runs `demo/jobs/*.json` against a local fake API and measures the results |
 
 ## Demo scenarios
 
@@ -169,13 +169,13 @@ the tested 7B is the default. To try another local model, run `AD_OLLAMA_MODEL=<
    ```
 
    A YAML version is in [examples/nightly_backup.yaml](examples/nightly_backup.yaml) (needs `pip install
-   'automation-doctor[yaml]'`). Run `automation-doctor validate ~/jobs/backup.json` to check the spec without running
+   'automation-auditor[yaml]'`). Run `automation-auditor validate ~/jobs/backup.json` to check the spec without running
    anything.
 
 2. **Option A: wrap the job.** Automation Doctor runs the command, then checks it. Replace the crontab line:
 
    ```cron
-   30 1 * * * /path/to/automation-doctor/.venv/bin/automation-doctor run /Users/me/jobs/backup.json --out /Users/me/.automation-doctor/reports >> /Users/me/.automation-doctor/cron.log 2>&1
+   30 1 * * * /path/to/automation-auditor/.venv/bin/automation-auditor run /Users/me/jobs/backup.json --out /Users/me/.automation-auditor/reports >> /Users/me/.automation-auditor/cron.log 2>&1
    ```
 
    The process exit code is the verdict (0 OK, 1 silent failure, ...), so anything that watches cron exit codes
@@ -184,9 +184,9 @@ the tested 7B is the default. To try another local model, run `AD_OLLAMA_MODEL=<
 3. **Option B: leave the job alone and inspect afterwards.** Record the exit code and the start time, then:
 
    ```bash
-   automation-doctor inspect ~/jobs/backup.json --exit-code 0 --started-at 2026-11-20T01:30:00 \
+   automation-auditor inspect ~/jobs/backup.json --exit-code 0 --started-at 2026-11-20T01:30:00 \
        --stdout-file /tmp/backup.out --stderr-file /tmp/backup.err
-   # or: automation-doctor inspect ~/jobs/backup.json --run-record examples/run-record.json
+   # or: automation-auditor inspect ~/jobs/backup.json --run-record examples/run-record.json
    ```
 
    `${RUN_DATE}` defaults to the inspected run's start date. Freshness checks need `--started-at`; without it they
@@ -195,7 +195,7 @@ the tested 7B is the default. To try another local model, run `AD_OLLAMA_MODEL=<
 Diagnosis settings, from highest to lowest precedence: the CLI flags `--provider` and `--model`, then the
 environment variables `AD_PROVIDER`, `AD_OLLAMA_MODEL` and `AD_OLLAMA_HOST`, then the spec's `diagnosis` block, then
 the defaults (`auto`, `qwen2.5-coder:7b`, `127.0.0.1:11434`). `auto` uses Ollama when the model is pulled, and the
-rules otherwise. `automation-doctor status` shows which one will be used.
+rules otherwise. `automation-auditor status` shows which one will be used.
 
 ## How untrusted input is handled
 

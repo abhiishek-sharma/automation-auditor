@@ -368,7 +368,7 @@ class HttpCheck:
             exp.append(f"body contains {check['contains']!r}")
         result.expected = "; ".join(exp)
 
-        headers = {"User-Agent": "automation-doctor/0.1", "Accept": "application/json, */*"}
+        headers = {"User-Agent": "automation-auditor/0.1", "Accept": "application/json, */*"}
         headers.update({str(k): str(v) for k, v in (check.get("headers") or {}).items()})
         req = urllib.request.Request(url, headers=headers, method="GET")
         t0 = time.monotonic()

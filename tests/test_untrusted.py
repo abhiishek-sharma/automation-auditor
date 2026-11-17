@@ -2,15 +2,15 @@
 import json
 import unittest
 
-from automation_doctor.checks import FAIL, CheckResult
-from automation_doctor.classify import SILENT_FAILURE, classify
-from automation_doctor.config import DiagnosisConfig, job_from_dict
-from automation_doctor.doctor import evaluate
-from automation_doctor.evidence import MAX_BUNDLE_CHARS, build_bundle
-from automation_doctor.providers import (InvalidProviderOutput, OllamaProvider, diagnose, parse_model_json,
+from automation_auditor.checks import FAIL, CheckResult
+from automation_auditor.classify import SILENT_FAILURE, classify
+from automation_auditor.config import DiagnosisConfig, job_from_dict
+from automation_auditor.doctor import evaluate
+from automation_auditor.evidence import MAX_BUNDLE_CHARS, build_bundle
+from automation_auditor.providers import (InvalidProviderOutput, OllamaProvider, diagnose, parse_model_json,
                                          validate_diagnosis)
-from automation_doctor.report import render_html
-from automation_doctor.sanitize import clean_text, redact
+from automation_auditor.report import render_html
+from automation_auditor.sanitize import clean_text, redact
 
 from helpers import JsonServer, TempDirCase, make_run
 
@@ -47,7 +47,7 @@ class SanitizeTests(unittest.TestCase):
                              "checks": [{"type": "file", "path": "a"}]})
         run = make_run(stdout="<img src=x onerror=alert(1)>")
         res = [CheckResult(name="<b>n</b>", type="file", status=FAIL, expected="<e>", actual="<a>")]
-        from automation_doctor.doctor import Result
+        from automation_auditor.doctor import Result
         d = Result(job, run, res, classify(run, res), validate_diagnosis(
             {**GOOD, "diagnosis": "<script>x()</script>"}, provider="ollama")).to_dict()
         page = render_html(d)

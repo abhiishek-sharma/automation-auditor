@@ -104,13 +104,13 @@ def run_demo(provider: str = "rules", model: str | None = None, out: Path = Path
              results_file: str | None = None, only: list[str] | None = None) -> int:
     out = out.resolve()
     if out.exists():
-        if not (out / ".automation-doctor-demo").exists() and any(out.iterdir()):
+        if not (out / ".automation-auditor-demo").exists() and any(out.iterdir()):
             raise ValueError(f"{out} exists and is not a previous demo output; choose another --out")
         shutil.rmtree(out)
     workspace, reports = out / "workspace", out / "reports"
     workspace.mkdir(parents=True)
     reports.mkdir()
-    (out / ".automation-doctor-demo").write_text("marker: safe to delete\n")
+    (out / ".automation-auditor-demo").write_text("marker: safe to delete\n")
 
     specs = sorted(demo_jobs_dir().glob("*.json"))
     if only:
@@ -180,7 +180,7 @@ def results_markdown(summary: dict[str, Any]) -> str:
     m = summary["metrics"]
     lines = [
         "# Automation Doctor: demo results", "",
-        f"- Generated: {summary['generated_at']} by `automation-doctor demo --provider {summary['provider_setting']}`",
+        f"- Generated: {summary['generated_at']} by `automation-auditor demo --provider {summary['provider_setting']}`",
         f"- Diagnosis model: {summary['model']}",
         "- Scope: this repo's own synthetic scenarios (`demo/jobs/`). This is not a real-world detection rate.", "",
         f"**Verdicts:** {m['verdicts_correct']}/{m['cases']} scenarios classified as labelled · "

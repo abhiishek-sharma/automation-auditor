@@ -7,8 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from automation_doctor.cli import main
-from automation_doctor.demo import run_demo
+from automation_auditor.cli import main
+from automation_auditor.demo import run_demo
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,7 +54,7 @@ class CliTests(unittest.TestCase):
 
     def cli(self, *args):
         env = {**os.environ, "PYTHONPATH": str(ROOT / "src"), "AD_PROVIDER": "rules"}
-        return subprocess.run([sys.executable, "-m", "automation_doctor", *args], capture_output=True, text=True,
+        return subprocess.run([sys.executable, "-m", "automation_auditor", *args], capture_output=True, text=True,
                               env=env, cwd=self.dir)
 
     def test_run_exit_codes(self):
