@@ -10,8 +10,8 @@ from .config import Job
 from .runner import RunRecord
 from .sanitize import clean_obj, clean_text
 
-MAX_BUNDLE_CHARS = 9000
-LOG_TAIL_CHARS = 1500
+MAX_BUNDLE_CHARS = 6000
+LOG_TAIL_CHARS = 1000
 
 
 def build_bundle(job: Job, run: RunRecord, results: list[CheckResult], verdict: Verdict) -> dict[str, Any]:

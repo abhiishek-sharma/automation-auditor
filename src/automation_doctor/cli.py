@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime as _dt
 import json
 import sys
 from pathlib import Path
@@ -32,7 +33,7 @@ def _common(p: argparse.ArgumentParser) -> None:
     p.add_argument("--run-date", help="value for ${RUN_DATE} (default: today, YYYY-MM-DD)")
     p.add_argument("--provider", choices=["auto", "ollama", "rules", "none"],
                    help="diagnosis provider (default: job spec, AD_PROVIDER, or auto)")
-    p.add_argument("--model", help="Ollama model (default: job spec, AD_OLLAMA_MODEL, or qwen3.5:9b)")
+    p.add_argument("--model", help="Ollama model (default: job spec, AD_OLLAMA_MODEL, or qwen2.5-coder:7b)")
     p.add_argument("--out", default=".automation-doctor/reports", help="where reports are written")
     p.add_argument("--no-save", action="store_true", help="do not write report files")
     p.add_argument("--format", choices=["text", "json", "md"], default="text", help="stdout format")
@@ -113,12 +114,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ok: {job.name}: {len(job.checks)} check(s): " + ", ".join(c["type"] for c in job.checks))
             return 0
 
-        job = load_job(args.job, variables=_vars(args.var), run_date=args.run_date)
+        rec = json.loads(_read(args.run_record)) if args.cmd == "inspect" and args.run_record else {}
+        started = parse_time(args.started_at or rec.get("started_at")) if args.cmd == "inspect" else None
+        run_date = args.run_date
+        if run_date is None and started is not None:  # inspecting a past run: ${RUN_DATE} is that run's date
+            run_date = _dt.date.fromtimestamp(started).isoformat()
+        job = load_job(args.job, variables=_vars(args.var), run_date=run_date)
         diag = resolve_settings(job.diagnosis, provider=args.provider, model=args.model)
         if args.cmd == "run":
             run = run_job(job)
         else:
-            rec = json.loads(_read(args.run_record)) if args.run_record else {}
             exit_code = args.exit_code if args.exit_code is not None else rec.get("exit_code")
             if exit_code is None:
                 raise ConfigError("inspect needs --exit-code or a run record with exit_code")
@@ -129,7 +134,7 @@ def main(argv: list[str] | None = None) -> int:
                 job, exit_code=int(exit_code),
                 stdout=_read(args.stdout_file) if args.stdout_file else rec.get("stdout", "") or rec_file("stdout_file"),
                 stderr=_read(args.stderr_file) if args.stderr_file else rec.get("stderr", "") or rec_file("stderr_file"),
-                started_at=parse_time(args.started_at or rec.get("started_at")),
+                started_at=started,
                 finished_at=parse_time(args.finished_at or rec.get("finished_at")))
         return _emit(evaluate(job, run, diag), args)
     except (ConfigError, OSError, json.JSONDecodeError, ValueError) as exc:

@@ -1,0 +1,22 @@
+# Example user job spec in YAML (needs: pip install 'automation-doctor[yaml]').
+# JSON specs need no extra dependency; both formats have the same fields.
+name: nightly-backup
+description: Dump the notes database to a dated backup file.
+schedule: "cron: 30 1 * * *"
+command: ["${PYTHON}", "-c", "import shutil, os; os.makedirs('backups', exist_ok=True); open('backups/notes-${RUN_DATE}.sql','w').write('-- dump\\nCREATE TABLE notes(id);\\n')"]
+cwd: ${WORKSPACE}
+timeout_seconds: 120
+expected_outcome: backups/notes-<RUN_DATE>.sql is written by this run and contains a CREATE TABLE statement.
+checks:
+  - type: file
+    name: backup written today
+    path: backups/notes-${RUN_DATE}.sql
+    fresh: true
+    contains: CREATE TABLE
+  - type: output
+    name: no errors logged
+    stream: stderr
+    not_contains: ERROR
+diagnosis:
+  provider: auto            # auto | ollama | rules | none
+  model: qwen2.5-coder:7b   # or set AD_OLLAMA_MODEL

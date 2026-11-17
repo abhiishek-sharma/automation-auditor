@@ -20,7 +20,9 @@ and never change the verdict: the verdict was decided by deterministic checks.
 Explain the mismatch between what the job reported and what the checks found.
 Cite concrete evidence (file names, field values, row counts, status codes, log lines).
 Suggest a specific, minimal repair to the job's code or configuration. Do not suggest destructive commands.
-If the evidence does not support a confident answer, say so and set uncertainty to "high".
+Keep every field to one or two short sentences.
+Uncertainty: "low" only if the evidence directly shows the cause (e.g. a log line or a near-miss file name);
+"medium" if the cause is inferred; "high" if the evidence is thin or ambiguous.
 Reply with a single JSON object with keys: diagnosis, likely_cause, suggested_fix, next_step,
 uncertainty (one of low, medium, high), uncertainty_reason."""
 
@@ -30,8 +32,8 @@ LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 class OllamaProvider:
     name = "ollama"
 
-    def __init__(self, model: str = "qwen3.5:9b", host: str = "http://127.0.0.1:11434", timeout: float = 180.0,
-                 allow_remote: bool = False, num_ctx: int = 8192):
+    def __init__(self, model: str = "qwen2.5-coder:7b", host: str = "http://127.0.0.1:11434", timeout: float = 180.0,
+                 allow_remote: bool = False, num_ctx: int = 4096):
         parsed = urllib.parse.urlparse(host)
         if parsed.scheme not in {"http", "https"} or not parsed.hostname:
             raise ValueError(f"invalid Ollama host {host!r}")
@@ -67,14 +69,14 @@ class OllamaProvider:
             raise ProviderUnavailable(f"model {self.model!r} is not pulled (run: ollama pull {self.model})")
 
     def diagnose(self, bundle: dict[str, Any]) -> Diagnosis:
-        evidence = json.dumps(bundle, ensure_ascii=False, indent=1, default=str)
+        evidence = json.dumps(bundle, ensure_ascii=False, separators=(",", ":"), default=str)
         payload = {
             "model": self.model,
             "stream": False,
             "think": False,
             "format": DIAGNOSIS_SCHEMA,
             "keep_alive": "10m",
-            "options": {"temperature": 0, "num_ctx": self.num_ctx, "num_predict": 700},
+            "options": {"temperature": 0, "num_ctx": self.num_ctx, "num_predict": 450},
             "messages": [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": f"<evidence>\n{evidence}\n</evidence>\nReturn the JSON diagnosis now."},

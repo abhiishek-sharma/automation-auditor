@@ -116,6 +116,9 @@ def run_demo(provider: str = "rules", model: str | None = None, out: Path = Path
     if only:
         specs = [s for s in specs if s.stem in only]
     diag_cfg = resolve_settings(DiagnosisConfig(), provider=provider, model=model)
+    if diag_cfg.provider in {"ollama", "auto"}:
+        print(f"NOTE: using local model {diag_cfg.model} for diagnosis. Expect ~48 s median per failing scenario on an "
+              "M1 / 16 GB; verdicts do not depend on the model.\n")
     cases: list[dict[str, Any]] = []
     with DemoApi() as api:
         variables = {"WORKSPACE": str(workspace), "DEMO_API_URL": api.url}

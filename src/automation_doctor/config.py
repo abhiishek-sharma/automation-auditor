@@ -26,7 +26,7 @@ class ConfigError(ValueError):
 @dataclass
 class DiagnosisConfig:
     provider: str = "auto"  # auto | ollama | rules | none
-    model: str = "qwen3.5:9b"
+    model: str = "qwen2.5-coder:7b"
     host: str = "http://127.0.0.1:11434"
     timeout_seconds: float = 180.0
     allow_remote: bool = False

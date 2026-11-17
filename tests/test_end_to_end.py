@@ -83,3 +83,15 @@ class CliTests(unittest.TestCase):
         self.assertEqual(main(["validate", str(bad)]), 4)
         self.assertEqual(main(["validate", str(ROOT / "demo/jobs/04_duplicate_on_retry.json"),
                                "--var", "WORKSPACE=/tmp/x", "--var", "DEMO_API_URL=http://127.0.0.1:1"]), 0)
+
+
+class YamlSpecTests(unittest.TestCase):
+    def test_yaml_example_runs_when_pyyaml_installed(self):
+        try:
+            import yaml  # noqa: F401
+        except ImportError:
+            self.skipTest("PyYAML not installed (optional extra)")
+        with tempfile.TemporaryDirectory() as tmp:
+            rc = main(["run", str(ROOT / "examples/nightly_backup.yaml"), "--var", f"WORKSPACE={tmp}",
+                       "--provider", "rules", "--no-save"])
+        self.assertEqual(rc, 0)

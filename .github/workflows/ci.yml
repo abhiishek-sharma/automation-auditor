@@ -1,0 +1,31 @@
+name: ci
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install (no model, no API key)
+        run: python -m pip install -e '.[dev]'
+      - name: Tests (Ollama is not available here; checks must still work)
+        env:
+          AD_PROVIDER: rules
+        run: python -m pytest -q
+      - name: Demo scenarios
+        run: python -m automation_doctor demo --provider rules --out demo-output
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-reports-${{ matrix.os }}
+          path: demo-output/
