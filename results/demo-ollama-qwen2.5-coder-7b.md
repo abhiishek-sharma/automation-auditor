@@ -1,6 +1,6 @@
-# Automation Doctor: demo results
+# Automation Auditor: demo results
 
-- Generated: 2026-11-17T19:02:43+05:30 by `automation-doctor demo --provider ollama`
+- Generated: 2026-11-17T19:02:43+05:30 by `automation-auditor demo --provider ollama`
 - Diagnosis model: qwen2.5-coder:7b
 - Scope: this repo's own synthetic scenarios (`demo/jobs/`). This is not a real-world detection rate.
 

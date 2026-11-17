@@ -45,7 +45,7 @@ job.json ──► config ──► runner ──► RunRecord (exit code, stdou
 
 ## Verdicts and CLI exit codes
 `OK`=0 · `SILENT_FAILURE` (exit 0, a check failed)=1 · `REPORTED_FAILURE` (non-zero exit/timeout)=2 ·
-`UNVERIFIED` (exit 0 but a check could not be evaluated)=3. Cron can wrap jobs with `automation-doctor run job.json`.
+`UNVERIFIED` (exit 0 but a check could not be evaluated)=3. Cron can wrap jobs with `automation-auditor run job.json`.
 
 ## Untrusted input
 Logs, files, HTTP bodies and model output are data, never instructions. Evidence is wrapped in delimiters and the

@@ -1,6 +1,6 @@
-# Automation Doctor: demo results
+# Automation Auditor: demo results
 
-- Generated: 2026-11-17T18:54:16+05:30 by `automation-doctor demo --provider rules`
+- Generated: 2026-11-17T18:54:16+05:30 by `automation-auditor demo --provider rules`
 - Diagnosis model: -
 - Scope: this repo's own synthetic scenarios (`demo/jobs/`). This is not a real-world detection rate.
 
