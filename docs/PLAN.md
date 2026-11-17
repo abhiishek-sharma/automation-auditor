@@ -65,3 +65,53 @@ validation (malformed JSON, wrong types, prompt-injection text), Ollama-unavaila
 ## Milestones
 1. Plan + skeleton · 2. checks + classify + runner + tests · 3. rules provider + reports + demo → **handoff #1** ·
 4. Ollama provider + measure Qwen 3.5 9B on M1 16 GB · 5. README, limitations, measured results → **final handoff**.
+
+---
+
+## Handoff 2 (Thu 2026-11-17) — B1–B8 complete
+
+**Branch:** `claude/mvp` · **Remote:** https://github.com/abhiishek-sharma/automation-auditor · **CI:** green (ubuntu-latest + macos-latest, Python 3.12)
+
+### What runs
+- `make setup && make test` → 43 tests pass, no model or network needed
+- `make demo` → 10 scenarios, 10/10 verdicts correct, 0 false alerts, writes `demo-output/index.html`
+- `make demo-llm` → same with qwen2.5-coder:7b via local Ollama; verdicts unchanged (deterministic)
+- `automation-auditor run <spec>` / `inspect` / `validate` / `demo` / `status`
+
+### Acceptance checklist B1–B8
+
+| Item | Status | Notes |
+|---|---|---|
+| B1 Remote + CI | ✅ | `origin` pushed; Actions green on both OS |
+| B2 `make setup && make demo` one command | ✅ | Makefile; no paid API key |
+| B3 Deterministic verdict, LLM adds explanation only | ✅ | `classify()` runs before `diagnose()`; test sends hostile reply, asserts verdict unchanged |
+| B4 Four check types: file / sqlite / http / output | ✅ | Each has pass/fail/error paths in tests |
+| B5 10 demo scenarios (3 healthy, 7 failures) | ✅ | 10/10 labelled correctly by rules provider |
+| B6 Untrusted-input pipeline | ✅ | Evidence trimmed (~6 KB), secrets redacted, HTML-escaped; SQLite read-only; a test shows DELETE fails even if spec validator is bypassed |
+| B7 Measured results committed | ✅ | `results/demo-rules.md` (10/10) + `results/demo-ollama-qwen2.5-coder-7b.md` (10/10 verdicts, 7/7 keywords, ~48 s median) |
+| B8 README | ✅ | Architecture diagram, check-types table, demo scenario table, example terminal output, measured results, add-your-own-job walkthrough, security model, limitations |
+
+### Manager corrections applied
+- Default model: `qwen2.5-coder:7b` (already pulled, 4.7 GB); Qwen 3.5 9B removed
+- LLM framing: "matched the rules provider on cause keyword identification" — no accuracy improvement claimed
+- Latency: re-measured after prompt tuning (num_ctx 4096, compact JSON, 6 KB evidence cap) → ~48 s median, max 68 s (was ~78 s)
+- YAML: documented as optional (`pip install 'automation-auditor[yaml]'`); JSON works with zero deps
+
+### Key commits on `claude/mvp`
+| SHA | Message |
+|---|---|
+| `e6b18d4` | Automation Doctor MVP: outcome checks, verdicts, rule/Ollama diagnosis, reports, 10 demo scenarios |
+| `868f19e` | Add measured demo results (rules, qwen2.5-coder:7b) |
+| `8c5f6db` | Handoff 2: README, CI, examples, latency tuning, measured results |
+| `2b364bc` | Rename automation-doctor → automation-auditor |
+| `02c128e` | Fix stale automation-doctor references in results and docs |
+
+### Known limitations (documented in README)
+- Synthetic scenarios only; 10/10 on the same set they were written for
+- LLM explanations slow (~48 s median) and not validated for correctness
+- Redaction is pattern-based; review before sharing reports
+- No Postgres/S3/queue checks, no auth flows beyond static headers
+- Not included by design: scheduling, alerting, auto-repair, web UI
+
+### Next step
+Review `claude/mvp`, merge to `main`, or open a PR for review.
